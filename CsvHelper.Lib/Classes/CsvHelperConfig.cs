@@ -1,4 +1,6 @@
-﻿namespace CsvHelper.Lib.Classes
+﻿using System;
+
+namespace CsvHelper.Lib.Classes
 {
     public class CsvHelperConfig
     {
@@ -8,18 +10,23 @@
         public char Delimiter { get; set; } = ',';
 
         /// <summary>
+        /// Custom DateTime format in CSV file
+        /// </summary>
+        public string DateTimeFormat { get; set; }
+
+        /// <summary>
         /// Default is TRUE
         /// </summary>
         public bool HasHeaderRecord { get; set; } = true;
 
         /// <summary>
-        /// Should the CSV reader validate the header
+        /// Should the CSV reader validate the header. Default is TRUE
         /// </summary>
-        public bool ValidateHeader { get; set; }
+        public bool ValidateHeader { get; set; } = true;
 
         /// <summary>
-        /// Custom DateTime format in CSV file
+        /// Custom header validation function
         /// </summary>
-        public string DateTimeFormat { get; set; }
+        public Func<string[], bool> ValidateHeaderFunc { get; set; }
     }
 }

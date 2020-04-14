@@ -7,7 +7,6 @@ namespace CsvHelper.Lib.Classes
     /// </summary>
     public class CsvPropertyMap
     {
-
         public CsvPropertyMap(int index, string columnName, string propertyName, Type propertyType)
         {
             Index = index;
@@ -27,6 +26,7 @@ namespace CsvHelper.Lib.Classes
         public string ColumnName { get; private set; }
 
         public string PropertyName { get; private set; }
+
         public Type PropertyType { get; private set; }
     }
 }

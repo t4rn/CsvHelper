@@ -1,7 +1,7 @@
 ﻿using CsvHelper.Lib.Classes;
 using System;
 
-namespace CsvHelper.ConsoleTestApp.Classes
+namespace CsvHelper.DomainForTests.Classes
 {
     public class User : ICsvRow
     {

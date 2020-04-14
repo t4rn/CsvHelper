@@ -27,7 +27,7 @@ namespace CsvHelper.Lib.Classes
             Config = new CsvHelperConfig();
         }
 
-        public string WriteRecords(List<T> records)
+        public string WriteRecords(IEnumerable<T> records)
         {
             var orderedByIndex = _propertyMap.OrderBy(x => x.Value.Index).ToArray();
 
@@ -79,11 +79,11 @@ namespace CsvHelper.Lib.Classes
             return sb.ToString();
         }
 
-        public CsvReaderResult<T> GetRecords(Stream inputStream)
+        public CsvReadResult<T> GetRecords(Stream inputStream)
         {
             if (inputStream is null) throw new ArgumentNullException(nameof(inputStream));
 
-            var result = new CsvReaderResult<T>()
+            var result = new CsvReadResult<T>()
             {
                 Errors = _errors,
             };
@@ -130,11 +130,15 @@ namespace CsvHelper.Lib.Classes
         }
 
         /// <summary>
-        /// Checks if row contains all columns which are mapped in Class
+        /// If HeaderValidationFunc is not provided - checks if row contains all columns which are mapped in Class
         /// </summary>
         private bool ValidateHeaderRow(string[] row)
         {
-            return !row.Except(_propertyMap.Keys).Any();
+            if (Config.ValidateHeaderFunc != null)
+            {
+                return Config.ValidateHeaderFunc(row);
+            }
+            return !_propertyMap.Keys.Except(row).Any();
         }
 
         /// <summary>
@@ -163,7 +167,7 @@ namespace CsvHelper.Lib.Classes
         /// </summary>
         private static Dictionary<string, CsvPropertyMap> GetPropertyMappingConfig()
         {
-            var configList = new Dictionary<string, CsvPropertyMap>();
+            var mapping = new Dictionary<string, CsvPropertyMap>();
 
             PropertyInfo[] props = typeof(T).GetProperties();
             foreach (PropertyInfo prop in props)
@@ -172,11 +176,27 @@ namespace CsvHelper.Lib.Classes
                 if (csvAttr != null)
                 {
                     var cfg = new CsvPropertyMap(csvAttr.Index, csvAttr.ColumnName ?? prop.Name, prop.Name, prop.PropertyType);
-                    configList.Add(prop.Name, cfg);
+                    mapping.Add(prop.Name, cfg);
                 }
             }
 
-            return configList;
+            ValidatePropertyMappingConfig(mapping);
+
+            return mapping;
+        }
+
+        private static void ValidatePropertyMappingConfig(Dictionary<string, CsvPropertyMap> mapping)
+        {
+            if (!mapping.Any())
+            {
+                throw new NotImplementedException($"Missing '{nameof(CsvFieldAttribute)}' configuration in '{typeof(T).Name}' class.");
+            }
+
+            var duplicatedIndexes = mapping.GroupBy(m => m.Value.Index).Where(x => x.Count() > 1);
+            if (duplicatedIndexes.Any())
+            {
+                throw new NotImplementedException($"Duplicated index/es '{string.Join(";", duplicatedIndexes.Select(x => x.Key))}' in '{typeof(T).Name}' class.");
+            }
         }
 
         /// <summary>

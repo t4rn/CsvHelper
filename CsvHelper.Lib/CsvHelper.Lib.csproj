@@ -45,7 +45,7 @@
     <Compile Include="Classes\CsvFieldAttribute.cs" />
     <Compile Include="Classes\CsvHelper.cs" />
     <Compile Include="Classes\CsvPropertyMap.cs" />
-    <Compile Include="Classes\CsvReaderResult.cs" />
+    <Compile Include="Classes\CsvReadResult.cs" />
     <Compile Include="Classes\ICsvRow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>

@@ -2,6 +2,9 @@
 
 namespace CsvHelper.Lib.Classes
 {
+    /// <summary>
+    /// Describes a position and name of Property in CSV file
+    /// </summary>
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CsvFieldAttribute : Attribute
     {

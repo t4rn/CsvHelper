@@ -1,5 +1,5 @@
 ﻿using AutoFixture;
-using CsvHelper.ConsoleTestApp.Classes;
+using CsvHelper.DomainForTests.Classes;
 using CsvHelper.Lib.Classes;
 using FluentAssertions;
 using System;
@@ -33,13 +33,15 @@ namespace CsvHelper.ConsoleTestApp
             csvHelper.Config.Delimiter = '\t';
             csvHelper.Config.HasHeaderRecord = true;
 
+
+
             string csvWriteResult = csvHelper.WriteRecords(users);
 
 
             byte[] byteArray = Encoding.UTF8.GetBytes(csvWriteResult);
             //byte[] byteArray = Encoding.ASCII.GetBytes(contents);
             MemoryStream stream = new MemoryStream(byteArray);
-            CsvReaderResult<User> csvReaderResult = csvHelper.GetRecords(stream);
+            CsvReadResult<User> csvReaderResult = csvHelper.GetRecords(stream);
 
 
             csvReaderResult.Errors.Should().HaveCount(0);
@@ -64,6 +66,7 @@ namespace CsvHelper.ConsoleTestApp
             }
 
 
+            
             Console.WriteLine("\nEnd - press any key to exit...");
             Console.Read();
         }
