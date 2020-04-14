@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace ConsoleTestApp.Classes
+namespace CsvHelper.ConsoleTestApp.Classes
 {
     public class Product
     {

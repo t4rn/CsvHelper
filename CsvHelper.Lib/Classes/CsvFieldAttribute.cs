@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CsvHelperLib.CsvHelpers
+namespace CsvHelper.Lib.Classes
 {
     [AttributeUsage(AttributeTargets.Property, AllowMultiple = false, Inherited = true)]
     public class CsvFieldAttribute : Attribute

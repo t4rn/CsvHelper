@@ -1,6 +1,6 @@
 ﻿using System.Collections.Generic;
 
-namespace CsvHelperLib.CsvHelpers
+namespace CsvHelper.Lib.Classes
 {
     public class CsvReaderResult<T>
     {

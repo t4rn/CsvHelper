@@ -1,6 +1,6 @@
-﻿namespace CsvHelperLib.CsvHelpers
+﻿namespace CsvHelper.Lib.Classes
 {
-    public class CsvConfig
+    public class CsvHelperConfig
     {
         /// <summary>
         /// Default is ','

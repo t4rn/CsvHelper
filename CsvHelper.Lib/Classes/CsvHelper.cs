@@ -7,7 +7,7 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace CsvHelperLib.CsvHelpers
+namespace CsvHelper.Lib.Classes
 {
     public class CsvHelper<T> where T : ICsvRow, new()
     {
@@ -19,40 +19,43 @@ namespace CsvHelperLib.CsvHelpers
         private static string FormatInvalidMessage(int lineNumber, string fieldName) => $"Line {lineNumber} - the format of field {fieldName} is invalid.";
         private static string ParsingExceptionMessage(int lineNumber, string message) => $"Line {lineNumber} - error occured: {message}.";
 
-        public CsvConfig Config { get; set; }
+        public CsvHelperConfig Config { get; set; }
         public CsvHelper()
         {
             _propertyMap = GetPropertyMappingConfig();
             _errors = new List<string>();
-            Config = new CsvConfig();
+            Config = new CsvHelperConfig();
         }
 
         public string WriteRecords(List<T> records)
         {
-            var orderedByIndex = _propertyMap.OrderBy(x => x.Value.Index);
+            var orderedByIndex = _propertyMap.OrderBy(x => x.Value.Index).ToArray();
 
             StringBuilder sb = new StringBuilder();
 
             if (Config.HasHeaderRecord)
             {
-                foreach (var property in orderedByIndex)
+                for (int i = 0; i < orderedByIndex.Length; i++)
                 {
-                    string column = property.Value.ColumnName;
+                    string column = orderedByIndex[i].Value.ColumnName;
+                    if (i > 0)
+                    {
+                        sb.Append(Config.Delimiter);
+                    }
                     sb.Append(column);
-                    sb.Append(Config.Delimiter);
                 }
                 sb.Append(Environment.NewLine);
             }
 
             foreach (T item in records)
             {
-                foreach (var propertyMap in orderedByIndex)
+                for (int i = 0; i < orderedByIndex.Length; i++)
                 {
                     string value;
-                    object propertyValue = item.GetType().GetProperty(propertyMap.Key).GetValue(item, null);
+                    object propertyValue = item.GetType().GetProperty(orderedByIndex[i].Key).GetValue(item, null);
 
                     if (!string.IsNullOrWhiteSpace(Config.DateTimeFormat)
-                        && _dateTimeTypes.Contains(propertyMap.Value.PropertyType)
+                        && _dateTimeTypes.Contains(orderedByIndex[i].Value.PropertyType)
                         && propertyValue is DateTime dt)
                     {
                         value = dt.ToString(Config.DateTimeFormat);
@@ -62,14 +65,18 @@ namespace CsvHelperLib.CsvHelpers
                         value = propertyValue?.ToString();
                     }
 
+                    if (i > 0)
+                    {
+                        //  add delimiter at the begining of new field, but ommit first field
+                        sb.Append(Config.Delimiter);
+                    }
+
                     sb.Append(value);
-                    sb.Append(Config.Delimiter);
                 }
                 sb.Append(Environment.NewLine);
             }
 
-            string csv = sb.ToString();
-            return csv;
+            return sb.ToString();
         }
 
         public CsvReaderResult<T> GetRecords(Stream inputStream)
