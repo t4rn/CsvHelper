@@ -1,6 +1,6 @@
-﻿using CsvHelper.Lib.Classes;
+﻿using Csv.Lib;
 
-namespace CsvHelper.DomainForTests.Classes.Errors
+namespace Csv.TestsDomain.Classes.Errors
 {
     public class DuplicatedIndex : ICsvRow
     {
@@ -8,10 +8,13 @@ namespace CsvHelper.DomainForTests.Classes.Errors
 
         [CsvField(0)]
         public int Id { get; set; }
+
         [CsvField(0)]
         public string Name { get; set; }
+
         [CsvField(1)]
         public int Units { get; set; }
+
         [CsvField(1)]
         public decimal? Cost { get; set; }
     }

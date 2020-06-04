@@ -7,29 +7,35 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 
-namespace CsvHelper.Lib.Classes
+namespace Csv.Lib
 {
-    public class CsvHelper<T> where T : ICsvRow, new()
+    public class CsvHelper
     {
         private readonly Type[] _dateTimeTypes = new Type[] { typeof(DateTime), typeof(DateTime?) };
-        private readonly Dictionary<string, CsvPropertyMap> _propertyMap;
         private readonly List<string> _errors;
 
         private static string ValidateHeaderMessage(string headerStart) => $"Incorrect file header starting with: {headerStart}.";
         private static string FormatInvalidMessage(int lineNumber, string fieldName) => $"Line {lineNumber} - the format of field {fieldName} is invalid.";
-        private static string ParsingExceptionMessage(int lineNumber, string message) => $"Line {lineNumber} - error occured: {message}.";
+        private static string CsvExceptionMessage(int lineNumber, string message) => $"Line {lineNumber} - {message}";
+        private static string MissingElementsMessage(int actual, int required) => $"insufficient number of elements ('{actual}') - required '{required}'.";
+        private static string InvalidIndexMappingMessage(CsvPropertyMap property) => $"missing value of '{property.ColumnName}' with index '{property.Index}'.";
+        private static string MissingConfigurationMessage(string config, string className) => $"Missing '{config}' configuration in '{className}' class.";
+        private static string DuplicatedIndexesMessage(string indexes, string className) => $"Duplicated index/es '{indexes}' in '{className}' class.";
 
         public CsvHelperConfig Config { get; set; }
+
         public CsvHelper()
         {
-            _propertyMap = GetPropertyMappingConfig();
             _errors = new List<string>();
             Config = new CsvHelperConfig();
         }
 
-        public string WriteRecords(IEnumerable<T> records)
+        public string WriteRecords<T>(IEnumerable<T> records)
         {
-            var orderedByIndex = _propertyMap.OrderBy(x => x.Value.Index).ToArray();
+            if (records is null) throw new ArgumentNullException(nameof(records));
+
+            var propertyMap = GetPropertyMappingConfig<T>();
+            var orderedByIndex = propertyMap.OrderBy(x => x.Value.Index).ToArray();
 
             StringBuilder sb = new StringBuilder();
 
@@ -79,9 +85,38 @@ namespace CsvHelper.Lib.Classes
             return sb.ToString();
         }
 
-        public CsvReadResult<T> GetRecords(Stream inputStream)
+        public CsvReadResult<T> GetRecords<T>(string fileContent) where T : ICsvRow, new()
         {
-            if (inputStream is null) throw new ArgumentNullException(nameof(inputStream));
+            if (string.IsNullOrWhiteSpace(fileContent)) throw new ArgumentNullException(nameof(fileContent));
+
+            var result = new CsvReadResult<T>();
+
+            using (var reader = new StringReader(fileContent))
+            {
+                result = GetRecords<T>(reader);
+            }
+
+            return result;
+        }
+
+        public CsvReadResult<T> GetRecords<T>(Stream inputStream) where T : ICsvRow, new()
+        {
+            if (inputStream == null) throw new ArgumentNullException(nameof(inputStream));
+
+            var result = new CsvReadResult<T>();
+
+            using (var reader = new StreamReader(inputStream))
+            {
+                result = GetRecords<T>(reader);
+            }
+
+            return result;
+        }
+
+
+        private CsvReadResult<T> GetRecords<T>(TextReader reader) where T : ICsvRow, new()
+        {
+            var propertyMap = GetPropertyMappingConfig<T>();
 
             var result = new CsvReadResult<T>()
             {
@@ -90,38 +125,34 @@ namespace CsvHelper.Lib.Classes
 
             int lineNumber = 0;
 
-            using (inputStream)
+            using (reader)
             {
-                using (var rowReader = new StreamReader(inputStream))
+                string currentLine;
+
+                while ((currentLine = reader.ReadLine()) != null)
                 {
-                    string currentLine;
+                    lineNumber++;
 
-                    while ((currentLine = rowReader.ReadLine()) != null)
+                    try
                     {
-                        lineNumber++;
+                        string[] currentRow = currentLine.Split(new[] { Config.Delimiter }, StringSplitOptions.None);
 
-                        try
+                        if (lineNumber == 1 && Config.HasHeaderRecord)
                         {
-                            string[] currentRow = currentLine.Split(new[] { Config.Delimiter }, StringSplitOptions.None);
-
-
-                            if (lineNumber == 1 && Config.HasHeaderRecord)
+                            if (Config.ValidateHeader && !ValidateHeaderRow(propertyMap, currentRow))
                             {
-                                if (Config.ValidateHeader && !ValidateHeaderRow(currentRow))
-                                {
-                                    _errors.Add(ValidateHeaderMessage(currentRow[0]));
-                                }
-                            }
-                            else
-                            {
-                                T record = GetRecord(lineNumber, currentRow);
-                                result.Records.Add(record);
+                                _errors.Add(ValidateHeaderMessage(currentRow[0]));
                             }
                         }
-                        catch (Exception ex)
+                        else
                         {
-                            _errors.Add(ParsingExceptionMessage(lineNumber, ex.Message));
+                            T record = GetRecord<T>(propertyMap, lineNumber, currentRow);
+                            result.Records.Add(record);
                         }
+                    }
+                    catch (Exception ex)
+                    {
+                        _errors.Add(CsvExceptionMessage(lineNumber, ex.Message));
                     }
                 }
             }
@@ -132,23 +163,35 @@ namespace CsvHelper.Lib.Classes
         /// <summary>
         /// If HeaderValidationFunc is not provided - checks if row contains all columns which are mapped in Class
         /// </summary>
-        private bool ValidateHeaderRow(string[] row)
+        private bool ValidateHeaderRow(Dictionary<string, CsvPropertyMap> propertyMap, string[] row)
         {
             if (Config.ValidateHeaderFunc != null)
             {
                 return Config.ValidateHeaderFunc(row);
             }
-            return !_propertyMap.Keys.Except(row).Any();
+            return !propertyMap.Select(x => x.Value.ColumnName).Except(row).Any();
         }
 
         /// <summary>
         /// Returns an object filled with values from the given CSV row. Properties of T have to have CsvFieldAttributes for mapping to work
         /// </summary>
-        private T GetRecord(int rowNumber, string[] csvRow)
+        private T GetRecord<T>(Dictionary<string, CsvPropertyMap> propertyMap, int rowNumber, string[] csvRow)
+            where T : ICsvRow, new()
         {
             T obj = new T() { RowNumber = rowNumber };
 
-            foreach (KeyValuePair<string, CsvPropertyMap> item in _propertyMap)
+            if (propertyMap.Count > csvRow.Length)
+            {
+                throw new Exception(MissingElementsMessage(csvRow.Length, propertyMap.Count));
+            }
+
+            CsvPropertyMap propertyWithMaxIndex = propertyMap.Values.OrderByDescending(x => x.Index).First();
+            if (propertyWithMaxIndex.Index >= csvRow.Length)
+            {
+                throw new Exception(InvalidIndexMappingMessage(propertyWithMaxIndex));
+            }
+
+            foreach (KeyValuePair<string, CsvPropertyMap> item in propertyMap)
             {
                 var inputValue = csvRow[item.Value.Index];
                 if (!string.IsNullOrWhiteSpace(inputValue))
@@ -165,7 +208,7 @@ namespace CsvHelper.Lib.Classes
         /// <summary>
         /// Returns a dictionary with values from property attributes - key is the Property Name
         /// </summary>
-        private static Dictionary<string, CsvPropertyMap> GetPropertyMappingConfig()
+        private static Dictionary<string, CsvPropertyMap> GetPropertyMappingConfig<T>()
         {
             var mapping = new Dictionary<string, CsvPropertyMap>();
 
@@ -180,22 +223,22 @@ namespace CsvHelper.Lib.Classes
                 }
             }
 
-            ValidatePropertyMappingConfig(mapping);
+            ValidatePropertyMappingConfig<T>(mapping);
 
             return mapping;
         }
 
-        private static void ValidatePropertyMappingConfig(Dictionary<string, CsvPropertyMap> mapping)
+        private static void ValidatePropertyMappingConfig<T>(Dictionary<string, CsvPropertyMap> mapping)
         {
             if (!mapping.Any())
             {
-                throw new NotImplementedException($"Missing '{nameof(CsvFieldAttribute)}' configuration in '{typeof(T).Name}' class.");
+                throw new Exception(MissingConfigurationMessage(nameof(CsvFieldAttribute), typeof(T).Name));
             }
 
             var duplicatedIndexes = mapping.GroupBy(m => m.Value.Index).Where(x => x.Count() > 1);
             if (duplicatedIndexes.Any())
             {
-                throw new NotImplementedException($"Duplicated index/es '{string.Join(";", duplicatedIndexes.Select(x => x.Key))}' in '{typeof(T).Name}' class.");
+                throw new Exception(DuplicatedIndexesMessage(string.Join(";", duplicatedIndexes.Select(x => x.Key)), typeof(T).Name));
             }
         }
 

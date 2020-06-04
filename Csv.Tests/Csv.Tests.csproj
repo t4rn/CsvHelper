@@ -5,11 +5,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{382D3D46-8E99-46B7-BD3A-7B926A8B6C26}</ProjectGuid>
+    <ProjectGuid>{3EC7F7F3-FF0D-4CB1-BFE6-BFE07DB2A8B0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CsvHelper.Tests</RootNamespace>
-    <AssemblyName>CsvHelper.Tests</AssemblyName>
+    <RootNamespace>Csv.Tests</RootNamespace>
+    <AssemblyName>Csv.Tests</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -63,17 +63,17 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CsvHelper.DomainForTests\CsvHelper.DomainForTests.csproj">
-      <Project>{eec84b42-8e71-40e3-987a-0f47c20daeb0}</Project>
-      <Name>CsvHelper.DomainForTests</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\CsvHelper.Lib\CsvHelper.Lib.csproj">
-      <Project>{f3127616-c239-4c03-98b8-32612e974f79}</Project>
-      <Name>CsvHelper.Lib</Name>
-    </ProjectReference>
+    <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="packages.config" />
+    <ProjectReference Include="..\Csv.Lib\Csv.Lib.csproj">
+      <Project>{069d595a-fde7-487e-b45c-9929c46b0ca0}</Project>
+      <Name>Csv.Lib</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\Csv.TestsDomain\Csv.TestsDomain.csproj">
+      <Project>{83231065-d5a5-46ab-b123-32facb83b611}</Project>
+      <Name>Csv.TestsDomain</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">

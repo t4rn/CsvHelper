@@ -4,11 +4,11 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EEC84B42-8E71-40E3-987A-0F47C20DAEB0}</ProjectGuid>
+    <ProjectGuid>{069D595A-FDE7-487E-B45C-9929C46B0CA0}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>CsvHelper.DomainForTests</RootNamespace>
-    <AssemblyName>CsvHelper.DomainForTests</AssemblyName>
+    <RootNamespace>Csv.Lib</RootNamespace>
+    <AssemblyName>Csv.Lib</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
@@ -41,16 +41,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Classes\Errors\DuplicatedIndex.cs" />
-    <Compile Include="Classes\Errors\NoAttributes.cs" />
-    <Compile Include="Classes\User.cs" />
+    <Compile Include="CsvFieldAttribute.cs" />
+    <Compile Include="CsvHelper.cs" />
+    <Compile Include="CsvHelperConfig.cs" />
+    <Compile Include="CsvPropertyMap.cs" />
+    <Compile Include="CsvReadResult.cs" />
+    <Compile Include="ICsvRow.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\CsvHelper.Lib\CsvHelper.Lib.csproj">
-      <Project>{f3127616-c239-4c03-98b8-32612e974f79}</Project>
-      <Name>CsvHelper.Lib</Name>
-    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

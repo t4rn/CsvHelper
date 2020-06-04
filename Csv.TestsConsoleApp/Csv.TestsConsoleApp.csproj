@@ -4,10 +4,10 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{638B7DF6-9CEE-4CAE-91DC-E02FCFB23A99}</ProjectGuid>
+    <ProjectGuid>{161F6F0A-3998-4141-89CE-5B4D5B9F6D02}</ProjectGuid>
     <OutputType>Exe</OutputType>
-    <RootNamespace>CsvHelper.ConsoleTestApp</RootNamespace>
-    <AssemblyName>CsvHelper.ConsoleTestApp</AssemblyName>
+    <RootNamespace>Csv.TestsConsoleApp</RootNamespace>
+    <AssemblyName>Csv.TestsConsoleApp</AssemblyName>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
@@ -39,12 +39,8 @@
     <Reference Include="Fare, Version=2.1.0.0, Culture=neutral, PublicKeyToken=ea68d375bf33a7c8, processorArchitecture=MSIL">
       <HintPath>..\packages\Fare.2.1.1\lib\net35\Fare.dll</HintPath>
     </Reference>
-    <Reference Include="FluentAssertions, Version=5.10.3.0, Culture=neutral, PublicKeyToken=33f2691a05b67b6a, processorArchitecture=MSIL">
-      <HintPath>..\packages\FluentAssertions.5.10.3\lib\net47\FluentAssertions.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Configuration" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
@@ -62,13 +58,13 @@
     <None Include="packages.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\CsvHelper.DomainForTests\CsvHelper.DomainForTests.csproj">
-      <Project>{eec84b42-8e71-40e3-987a-0f47c20daeb0}</Project>
-      <Name>CsvHelper.DomainForTests</Name>
+    <ProjectReference Include="..\Csv.Lib\Csv.Lib.csproj">
+      <Project>{069d595a-fde7-487e-b45c-9929c46b0ca0}</Project>
+      <Name>Csv.Lib</Name>
     </ProjectReference>
-    <ProjectReference Include="..\CsvHelper.Lib\CsvHelper.Lib.csproj">
-      <Project>{f3127616-c239-4c03-98b8-32612e974f79}</Project>
-      <Name>CsvHelper.Lib</Name>
+    <ProjectReference Include="..\Csv.TestsDomain\Csv.TestsDomain.csproj">
+      <Project>{83231065-d5a5-46ab-b123-32facb83b611}</Project>
+      <Name>Csv.TestsDomain</Name>
     </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />

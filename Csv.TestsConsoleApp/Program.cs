@@ -1,76 +1,32 @@
 ﻿using AutoFixture;
-using CsvHelper.DomainForTests.Classes;
-using CsvHelper.Lib.Classes;
-using FluentAssertions;
+using Csv.Lib;
+using Csv.TestsDomain.Classes;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.IO;
 using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace CsvHelper.ConsoleTestApp
+namespace Csv.TestsConsoleApp
 {
     class Program
     {
         static void Main(string[] args)
         {
-            Fixture fixture = new Fixture();
-            int elementsCount = 10;
+            var fixture = new Fixture();
+            int elementsCount = 10000;
+
             Console.WriteLine($"{DateTime.Now} - Start for {elementsCount} elements");
 
             List<User> users = fixture.CreateMany<User>(elementsCount).ToList();
             Console.WriteLine($"{DateTime.Now} - Users prepared");
 
-            //TestPerformanceOfAtrributeReading(users);
-
-            users.First().BirthDate = null;
-
-            var csvHelper = new CsvHelper<User>();
-            csvHelper.Config.DateTimeFormat = "yyyyMMdd HH:mm:ss";
-            csvHelper.Config.Delimiter = '\t';
-            csvHelper.Config.HasHeaderRecord = true;
+            TestPerformanceOfAtrributeReading(users);
 
 
-
-            string csvWriteResult = csvHelper.WriteRecords(users);
-
-
-            byte[] byteArray = Encoding.UTF8.GetBytes(csvWriteResult);
-            //byte[] byteArray = Encoding.ASCII.GetBytes(contents);
-            MemoryStream stream = new MemoryStream(byteArray);
-            CsvReadResult<User> csvReaderResult = csvHelper.GetRecords(stream);
-
-
-            csvReaderResult.Errors.Should().HaveCount(0);
-            csvReaderResult.Records.Should().HaveCount(users.Count);
-
-            for (int i = 0; i < users.Count; i++)
-            {
-                if (users[i].BirthDate == null)
-                {
-                    csvReaderResult.Records[i].BirthDate.Should().BeNull();
-                }
-                else
-                {
-                    csvReaderResult.Records[i].BirthDate.Should()
-                        .Be(users[i].BirthDate.Value.AddTicks(-(users[i].BirthDate.Value.Ticks % TimeSpan.TicksPerSecond)));
-                }
-                csvReaderResult.Records[i].FirstName.Should().Be(users[i].FirstName);
-                csvReaderResult.Records[i].Id.Should().Be(users[i].Id);
-                csvReaderResult.Records[i].LastName.Should().Be(users[i].LastName);
-                csvReaderResult.Records[i].WorkStatus.Should().Be(users[i].WorkStatus);
-                csvReaderResult.Records[i].Title.Should().Be(users[i].Title);
-            }
-
-
-            
             Console.WriteLine("\nEnd - press any key to exit...");
             Console.Read();
         }
-
 
         private static void TestPerformanceOfAtrributeReading(List<User> users)
         {
@@ -89,8 +45,6 @@ namespace CsvHelper.ConsoleTestApp
             stopwatch.Restart();
             var x2 = GetIndexesByAllAttributes<User>();
             Console.WriteLine($"{stopwatch.Elapsed} for GetIndexesByAll");
-
-            Console.ReadLine();
         }
 
         private static Dictionary<string, int> GetIndexesByAllAttributes<T>()

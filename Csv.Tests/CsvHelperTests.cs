@@ -1,15 +1,13 @@
 ﻿using AutoFixture;
-using CsvHelper.DomainForTests.Classes;
-using CsvHelper.Lib.Classes;
+using Csv.Lib;
+using Csv.TestsDomain.Classes;
 using FluentAssertions;
 using NUnit.Framework;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
-using System.Text;
 
-namespace CsvHelper.Tests
+namespace Csv.Tests
 {
     public class CsvHelperTests
     {
@@ -19,22 +17,19 @@ namespace CsvHelper.Tests
             // Arrange
             var users = PrepareUsers(10);
 
-            var csvHelper = new CsvHelper<User>();
+            var csvHelper = new CsvHelper();
             csvHelper.Config.DateTimeFormat = "yyyyMMdd HH:mm:ss";
             csvHelper.Config.Delimiter = '\t';
             csvHelper.Config.HasHeaderRecord = true;
 
 
             // Act
+
             // write CSV
             string csvWriteResult = csvHelper.WriteRecords(users);
 
-
-            byte[] byteArray = Encoding.UTF8.GetBytes(csvWriteResult);
-            MemoryStream stream = new MemoryStream(byteArray);
-
             // read CSV
-            CsvReadResult<User> csvReaderResult = csvHelper.GetRecords(stream);
+            CsvReadResult<User> csvReaderResult = csvHelper.GetRecords<User>(csvWriteResult);
 
 
             // Assert

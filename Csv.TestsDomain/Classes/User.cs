@@ -1,10 +1,13 @@
-﻿using CsvHelper.Lib.Classes;
+﻿using Csv.Lib;
 using System;
 
-namespace CsvHelper.DomainForTests.Classes
+namespace Csv.TestsDomain.Classes
 {
     public class User : ICsvRow
     {
+        public int RowNumber { get; set; }
+
+
         [CsvField(0, "identifier")]
         public decimal? Id { get; set; }
 
@@ -24,8 +27,5 @@ namespace CsvHelper.DomainForTests.Classes
         public char? WorkStatus { get; set; }
 
         public int NotMapped { get; set; }
-
-
-        public int RowNumber { get; set; }
     }
 }

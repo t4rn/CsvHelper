@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CsvHelper.Lib.Classes
+namespace Csv.Lib
 {
     public class CsvHelperConfig
     {

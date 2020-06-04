@@ -1,4 +1,4 @@
-﻿namespace CsvHelper.Lib.Classes
+﻿namespace Csv.Lib
 {
     public interface ICsvRow
     {

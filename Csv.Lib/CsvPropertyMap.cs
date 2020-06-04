@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace CsvHelper.Lib.Classes
+namespace Csv.Lib
 {
     /// <summary>
     /// Class for storing mapping of a property in a CSV file
